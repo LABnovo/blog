@@ -1,0 +1,20 @@
+ 手里有一串CAS或者化学名列表（十有八九是存在Excel里的），想补全其他化学基本信息包括结构式图片，现在已经有一些Excel的插件能用了，不过在Google Spreadsheet里做这件事真是格外感到荡气回肠…
+
+所有的原理、代码、操作指南都是从 http://metamolecular.com/gchem/ 这里学来的。
+
+实验过程全程翻墙。
+
+基本的原理是
+◾有一个Web Service能完成化学方面的事情。这里用的是著名的 http://cactus.nci.nih.gov/chemical/structure
+◾Google Spreadsheet能执行自定义的脚本(javascript)；而且脚本里还能用UrlFetchApp.fetch(url)这种去访问网页或Web Service！
+
+脚本安装和使用的过程 http://metamolecular.com/blog/2011/02/22/gchem-easily-convert-names-and-cas-numbers-to-chemical-structures-in-google-spreadsheets/
+
+效果
+
+
+
+其他
+◾表格导出Excel文件时自定义脚本都失效了；保存成PDF图都没了。
+◾再加上现在国内墙越弄越nb，恐怕没法作为常用工具去用。
+◾比较容易可以更换成自己写的Web Service，比之现在查到的内容更精准有效。
