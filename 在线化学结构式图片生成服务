@@ -1,0 +1,65 @@
+在线化学结构式图片生成服务 
+
+原文地址：http://blog.charliezhu.com/2008/06/16/%e5%9c%a8%e7%ba%bf%e5%8c%96%e5%ad%a6%e7%bb%93%e6%9e%84%e5%bc%8f%e5%9b%be%e7%89%87%e7%94%9f%e6%88%90%e6%9c%8d%e5%8a%a1/
+ 感谢Charlie提供那么多好文章
+
+
+
+利用一些网站提供的资源，可以在线生成结构式图片。
+
+DayLight
+
+其中比较突出的是DayLight提供的服务，在另外一篇 结构式图片生成服务, DayLight SMI2GIF 中做过详细介绍。DayLight的服务传入的结构式参数是SMILES，而且有很丰富的参数以调节输出效果。
+
+NIST
+
+NIST是美国国家标准与技术局(National Institute of Standards and Technology)，NIST WebBook 是老牌的免费化合物信息数据库，提供丰富的化合物物理、化学性质数据。其化合物的编码方式，其实是CAS号码。把CAS号码转换成数字，就可以很容易得到结构式图片的地址了。
+http://webbook.nist.gov/cgi/cbook.cgi?Struct=C490119
+
+ NIST WebBook的数据量并不是很大，只有几万条记录。不知道是不是因为太老的原因（05年就没再更新过），其中还有错误数据。至少到这篇发布的时候，上面的例子仍就是一个错误结构。我写Email报告了这个问题，不知道啥时候能修正。
+
+NLM
+
+NLM是(National Library of Medicine) 它提供的ChemIDPlus数据库 也是用CAS号码进行编码的。数据量要比NIST大很多，结构式输出的质量也更好。
+http://chem.sis.nlm.nih.gov/chemidplus/RenderImage?maxscale=30&width=200&height=200&superlistid=000490119
+
+
+
+
+Pubchem
+
+对于化合物的标记，SMILES是公开的标准，直观还原结构式信息，值得应用；CAS不公开不免费，但也成为了既成的行业标准。现在能与CAS相提并论的，我想就是NCBI的PubChem 数据库了。NCBI是美国国立生物技术信息中心(The National Center for Biotechnology Information。在在线数据库的范畴内来说，PubChem的Compound ID(cid)基本上是必被引用的。所以也勉强将它用cid作结构参数的图片生成接口纳入进来。这个接口背后也有很多参数用以调节输出。
+http://pubchem.ncbi.nlm.nih.gov/image/imagefly.cgi?cid=10273&width=400&height=400
+
+
+
+有一篇很好的文章，Thirty-Two Free Chemstry Databases（32个免费化学数据库） ，仔细读过的话也许还会有更多的发现。
+
+2008年12月15日更新
+
+Hack PubChem的结构式编辑页面，找到PubChem通过SMILES输出结构式图片的服务
+http://pubchem.ncbi.nlm.nih.gov/edit/editsrv.fcgi?drawevent=paste&sessionid=122931177&smiles=c1(c(cncc1)C(O)=O)C(O)=O&speed=1&nopng=0&vid=&vhadd=0
+
+ 
+
+ChemDB
+
+ChemDB / Smi2Depict: Generate 2D Images from Molecule Files
+http://c1ccccc1-2.ics.uci.edu:8081/arrow-webapp/ArrowWebService?action=smi2png&smiles=c1(c(cncc1)C(O)=O)C(O)=O&width=400&height=200&arrowdesc=&extraImageSetting=amap
+
+
+
+eMolecules
+http://depict.emolecules.com/cgi-bin/mymol/depict.cgi?smiles=c1(c(cncc1)C(O)=O)C(O)=O&width=100&height=100&colorscheme=cow&format=png&submit=image
+
+
+
+
+NCI/CADD, Chemical Identifier Resolver 
+
+美国癌症研究中心
+http://cactus.nci.nih.gov/chemical/structure/c1(c(cncc1)C(O)=O)C(O)=O/image
+
+ 
+
+ 
