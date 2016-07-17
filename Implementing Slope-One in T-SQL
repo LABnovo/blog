@@ -1,0 +1,112 @@
+July 21, 2008
+
+Implementing Slope-One in T-SQL
+
+
+Slope-One, the simplest form of non-trivial item-based collaborative filtering based on ratings. (Original Paper)
+ Referencing to Bryan O’Sullivan’s tutorial of implementing Slope One in Python, I write a the implementation in T-SQL. Believe it useful to many people and projects.
+
+Brief process summary
+◾Define the fact table as user data.
+◾Calculating intermediate matrix(FreqDiff). The information about users is eliminated and frequency/ score differences data between items is produced.
+◾Predicting from user input score with the intermediate data.
+
+Data schema
+
+The UserData is fact table of business transactions. I use an view to wrap it for switching between testing data and working data.
+ The Freq&Diff matrix is square and sparse. Only non-zero values is meaningful and stored. And a half-matrix triangle holds full information about the matrix.
+ There created two indices to avoid heavily bookmark-lookup.
+create table UserData (                  -- fact table
+    userid   varchar(50) not null,
+    itemid   varchar(50) not null,
+    rating   float not null default 0,
+    updtime  datetime default getdate(),
+    primary key (userid, itemid)
+)
+GO
+
+create table FreqDiff (                  -- Freqs and Diffs
+    itemid1  varchar(50),
+    itemid2  varchar(50),
+    freq     float not null default 0,
+    diff     float not null default 0,
+    updtime  datetime default getdate(),
+    primary key (itemid1, itemid2)
+)
+GO
+create index idx_freqdiff_itemid1 on FreqDiff(itemid1, freq, diff, itemid2)
+create index idx_freqdiff_itemid2 on FreqDiff(itemid2, freq, diff, itemid1)
+
+/*
+ * The matrix FreqDiff is *almost* symmetric, 
+ * so only half of the data need to be stored.
+ * There would be huge of space (50%) saved for large dataset.
+ */
+alter view vw_freqdiff as
+select itemid1 as itemid1, itemid2 as itemid2, freq,     diff from FreqDiff fd
+union all
+select itemid2 as itemid1, itemid1 as itemid2, freq, -1* diff from FreqDiff fd
+GO
+
+/*
+ * Wrap for userdata, 
+ * switch from one model to another easily.
+ */
+alter view vw_userdata as 
+select * from userdata
+GO
+
+
+Testing data
+
+Same as Bryan’s but names changed for easily debugging print.
+-- init userdata, Bryan O'Sullivan's sample data is used
+insert into UserData values ( 'u1', 'i1',  1, getdate() )
+insert into UserData values ( 'u1', 'i2', .5, getdate() )
+insert into UserData values ( 'u1', 'i3', .2, getdate() )
+insert into UserData values ( 'u2', 'i1',  1, getdate() )
+insert into UserData values ( 'u2', 'i3', .5, getdate() )
+insert into UserData values ( 'u2', 'i4', .2, getdate() )
+insert into UserData values ( 'u3', 'i1', .2, getdate() )
+insert into UserData values ( 'u3', 'i2', .4, getdate() )
+insert into UserData values ( 'u3', 'i3',  1, getdate() )
+insert into UserData values ( 'u3', 'i4', .4, getdate() )
+insert into UserData values ( 'u4', 'i2', .9, getdate() )
+insert into UserData values ( 'u4', 'i3', .4, getdate() )
+insert into UserData values ( 'u4', 'i4', .5, getdate() )
+GO
+
+
+Processing the intermediate table
+-- update process
+delete FreqDiff
+insert into FreqDiff
+select 
+    ud1.itemid, ud2.itemid, count(*), (sum(ud1.rating - ud2.rating))/count(*), getdate()
+from 
+    vw_userdata ud1 
+    join vw_userdata ud2 on 
+            ud1.userid = ud2.userid
+        and ud1.itemid > ud2.itemid
+group by ud1.itemid, ud2.itemid
+
+
+Predicting
+-- predict process
+declare @pref table(itemid varchar(50), rating float)
+insert into @pref values('i1', 0.4)
+
+select -- distinct top 10
+    itemid1,
+    sum(freq)                               as freq,
+    sum(freq*(diff + rating))            as pref,
+    sum(freq*(diff + rating)) /sum(freq) as rating
+from 
+    vw_freqdiff fd
+    join @pref p on fd.itemid2 = p.itemid
+where itemid1 not in( select itemid from @pref )
+group by itemid1
+
+
+Further works as intermediate data updating seems easy.
+ So, writing here, listening for suggestions.
